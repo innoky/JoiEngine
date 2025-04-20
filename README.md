@@ -9,7 +9,20 @@ Welcome to the Mezera Engine source code!
 It is a personal project focused on building a custom rendering pipeline from scratch, with emphasis on clarity, minimalism, and control over every part of the process.
 
 ---
+## Build
+```bash
+mkdir build
+cd build
+cmake ..
+make
+./JoyApp
+```
+To use glTF files in a scene upload them to the resources/gltfModels folder and use in Scene.cpp :
+```cpp
+auto [vertices, indices] = LoadGLTFMesh_All("../resources/gltfModels/scene.gltf");
+```
 
+---
 ## Status
 
 > Mezera Engine is in active development. It is not production-ready.
