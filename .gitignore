@@ -1,0 +1,41 @@
+# Файлы сборки CMake
+/build/
+/CMakeFiles/
+/CMakeCache.txt
+/cmake_install.cmake
+/Makefile
+/CMakeScripts/
+
+
+/resources/gltfModels/*
+
+!/resources/gltfModels/.gitkeep
+
+
+# Файлы, сгенерированные IDE
+.vscode/
+.idea/
+*.sln
+*.vcxproj*
+*.user
+*.ncb
+*.opensdf
+*.suo
+
+# Временные файлы компилятора/редактора
+*.o
+*.obj
+*.so
+*.exe
+*.dll
+*.dSYM/
+*.log
+*.tmp
+
+# Файлы, создаваемые системой
+.DS_Store
+Thumbs.db
+
+# Личные файлы (настройки)
+*.swp
+*.swo

@@ -1,0 +1,387 @@
+{
+  "accessors": [
+    {
+      "bufferView": 2,
+      "componentType": 5126,
+      "count": 16120,
+      "max": [
+        87.0002212524414,
+        20.931121826171875,
+        57.82828140258789
+      ],
+      "min": [
+        -87.0002212524414,
+        -20.931121826171875,
+        -57.828277587890625
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 193440,
+      "componentType": 5126,
+      "count": 16120,
+      "max": [
+        0.9999344944953918,
+        0.9998767971992493,
+        0.9999538064002991
+      ],
+      "min": [
+        -0.9997739195823669,
+        -0.999985933303833,
+        -0.9999275207519531
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 1,
+      "componentType": 5126,
+      "count": 16120,
+      "max": [
+        0.9854450225830078,
+        0.8565580248832703
+      ],
+      "min": [
+        0.014972999691963196,
+        0.014662999659776688
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 0,
+      "componentType": 5125,
+      "count": 92394,
+      "type": "SCALAR"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 386880,
+      "componentType": 5126,
+      "count": 1920,
+      "max": [
+        87.18326568603516,
+        19.670185089111328,
+        43.899330139160156
+      ],
+      "min": [
+        74.84923553466797,
+        -15.728928565979004,
+        12.804367065429688
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 409920,
+      "componentType": 5126,
+      "count": 1920,
+      "max": [
+        0.9995134472846985,
+        0.9630352258682251,
+        0.9043787121772766
+      ],
+      "min": [
+        -0.9995901584625244,
+        -0.9551434516906738,
+        -0.9001170992851257
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 128960,
+      "componentType": 5126,
+      "count": 1920,
+      "max": [
+        1.0,
+        1.0
+      ],
+      "min": [
+        0.0,
+        0.0
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 0,
+      "byteOffset": 369576,
+      "componentType": 5125,
+      "count": 2880,
+      "type": "SCALAR"
+    }
+  ],
+  "asset": {
+    "extras": {
+      "author": "Stephengury (https://sketchfab.com/Stephengury)",
+      "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+      "source": "https://sketchfab.com/3d-models/cat-043794629a474896be25c2f6b06599d1",
+      "title": "cat"
+    },
+    "generator": "Sketchfab-15.27.0",
+    "version": "2.0"
+  },
+  "bufferViews": [
+    {
+      "buffer": 0,
+      "byteLength": 381096,
+      "name": "floatBufferViews",
+      "target": 34963
+    },
+    {
+      "buffer": 0,
+      "byteLength": 144320,
+      "byteOffset": 381096,
+      "byteStride": 8,
+      "name": "floatBufferViews",
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 432960,
+      "byteOffset": 525416,
+      "byteStride": 12,
+      "name": "floatBufferViews",
+      "target": 34962
+    }
+  ],
+  "buffers": [
+    {
+      "byteLength": 958376,
+      "uri": "scene.bin"
+    }
+  ],
+  "extensionsRequired": [
+    "KHR_materials_pbrSpecularGlossiness"
+  ],
+  "extensionsUsed": [
+    "KHR_materials_pbrSpecularGlossiness"
+  ],
+  "images": [
+    {
+      "uri": "textures/catt_diffuse.jpeg"
+    },
+    {
+      "uri": "textures/cattt_diffuse.jpeg"
+    }
+  ],
+  "materials": [
+    {
+      "doubleSided": true,
+      "extensions": {
+        "KHR_materials_pbrSpecularGlossiness": {
+          "diffuseFactor": [
+            0.8,
+            0.8,
+            0.8,
+            1.0
+          ],
+          "diffuseTexture": {
+            "index": 0
+          },
+          "glossinessFactor": 0.4,
+          "specularFactor": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "name": "catt"
+    },
+    {
+      "doubleSided": true,
+      "extensions": {
+        "KHR_materials_pbrSpecularGlossiness": {
+          "diffuseFactor": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "diffuseTexture": {
+            "index": 1
+          },
+          "glossinessFactor": 0.4,
+          "specularFactor": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "name": "cattt"
+    }
+  ],
+  "meshes": [
+    {
+      "name": "������2010017_catt_0",
+      "primitives": [
+        {
+          "attributes": {
+            "NORMAL": 1,
+            "POSITION": 0,
+            "TEXCOORD_0": 2
+          },
+          "indices": 3,
+          "material": 0,
+          "mode": 4
+        }
+      ]
+    },
+    {
+      "name": "������2010017_cattt_0",
+      "primitives": [
+        {
+          "attributes": {
+            "NORMAL": 5,
+            "POSITION": 4,
+            "TEXCOORD_0": 6
+          },
+          "indices": 7,
+          "material": 1,
+          "mode": 4
+        }
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "children": [
+        1
+      ],
+      "matrix": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        2.220446049250313e-16,
+        -1.0,
+        0.0,
+        0.0,
+        1.0,
+        2.220446049250313e-16,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "name": "Sketchfab_model"
+    },
+    {
+      "children": [
+        2
+      ],
+      "matrix": [
+        0.0010000000474974513,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0010000000474974513,
+        0.0,
+        0.0,
+        -0.0010000000474974513,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "name": "cat.FBX"
+    },
+    {
+      "children": [
+        3
+      ],
+      "name": "RootNode"
+    },
+    {
+      "children": [
+        4
+      ],
+      "matrix": [
+        0.29785099595597986,
+        0.0,
+        -0.42537543134775224,
+        0.0,
+        -0.42537543134775224,
+        0.0,
+        -0.29785099595597986,
+        0.0,
+        0.0,
+        0.5192874670028687,
+        0.0,
+        0.0,
+        -6926.73046875,
+        -0.3311004638671875,
+        1679.2308349609375,
+        1.0
+      ],
+      "name": "cat"
+    },
+    {
+      "children": [
+        5,
+        6
+      ],
+      "matrix": [
+        -5.133357537303089,
+        -0.17072272342063552,
+        5.491137001283074e-50,
+        0.0,
+        0.17072272342063552,
+        -5.133357537303089,
+        2.4651903288156624e-32,
+        0.0,
+        -8.194079733382057e-34,
+        2.4638279028024827e-32,
+        5.136195182800293,
+        0.0,
+        0.470703125,
+        0.015625,
+        297.0173645019531,
+        1.0
+      ],
+      "name": "������2010017"
+    },
+    {
+      "mesh": 0,
+      "name": "������2010017_catt_0"
+    },
+    {
+      "mesh": 1,
+      "name": "������2010017_cattt_0"
+    }
+  ],
+  "samplers": [
+    {
+      "magFilter": 9729,
+      "minFilter": 9987,
+      "wrapS": 10497,
+      "wrapT": 10497
+    }
+  ],
+  "scene": 0,
+  "scenes": [
+    {
+      "name": "Sketchfab_Scene",
+      "nodes": [
+        0
+      ]
+    }
+  ],
+  "textures": [
+    {
+      "sampler": 0,
+      "source": 0
+    },
+    {
+      "sampler": 0,
+      "source": 1
+    }
+  ]
+}
