@@ -32,21 +32,24 @@ inline std::pair<std::vector<Vertex>, std::vector<uint32_t>> GenerateToroidalSur
             float z = beta * sin(v);
 
             glm::vec3 pos = glm::vec3(x, y, z);
-            if (i % 1 == 0 || j % 1 == 0)
+            if (i % 5 == 0 || j % 5 == 0)
             {
                 glm::vec3 color = glm::vec3(
-                    0.4f,
-                    0.6f,
+                    0.0f,
+                    0.0f,
                     0.0f);
-                vertices.push_back({pos, color});
+                glm::vec2 uv = glm::vec2((u - uStart) / (uEnd - uStart), (v - vStart) / (vEnd - vStart));
+                vertices.push_back({pos, color, uv});
             }
             else
             {
+
                 glm::vec3 color = glm::vec3(
-                    0.75f,
-                    0.75f,
-                    0.75f);
-                vertices.push_back({pos, color});
+                    0.0f,
+                    0.0f,
+                    0.0f);
+                glm::vec2 uv = glm::vec2((u - uStart) / (uEnd - uStart), (v - vStart) / (vEnd - vStart));
+                vertices.push_back({pos, color, uv});
             }
         }
     }

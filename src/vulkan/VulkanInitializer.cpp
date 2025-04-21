@@ -15,6 +15,7 @@
 #include "vulkan/commands/CommandPool.hpp"
 #include "vulkan/commands/CommandBuffers.hpp"
 #include "vulkan/sync/SyncObjects.hpp"
+#include "vulkan/renderer/Texture2D.hpp"
 
 #include "vulkan/renderer/Mesh.hpp"
 #include "vulkan/data/TriangleData.hpp"
@@ -22,6 +23,7 @@
 
 #include "vulkan/renderer/Camera.hpp"
 #include "vulkan/renderer/Scene.hpp"
+
 
 
 
@@ -46,6 +48,8 @@ void VulkanInitializer::init()
 
     RenderPass(app).createRenderPass();
     PipelineBuilder(app).createGraphicsPipeline();
+
+
     DepthResources(app).createDepthResources();
     FrameBuffers(app).createFrameBuffers();
     CommandPool(app).createCommandPool();
@@ -53,6 +57,8 @@ void VulkanInitializer::init()
 
     
     SyncObjects(app).createSyncObjects();
+
+    app.createDescriptorPool();
 
     app.scene = std::make_unique<Scene>(app.window, app);
     

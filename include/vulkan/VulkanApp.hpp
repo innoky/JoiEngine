@@ -32,6 +32,8 @@
 #include "vulkan/resources/DepthResources.hpp"
 
 #include "vulkan/renderer/Scene.hpp"
+#include "vulkan/commands/UniformBuffer.hpp"
+
 
 class Scene;
 
@@ -58,6 +60,7 @@ class VulkanApp
     friend class Mesh;
     friend class DepthResources;
 
+
    
 
 public:
@@ -69,14 +72,30 @@ public:
     float yaw = 0.0f;
     float pitch = 0.0f;
 
-private:
+
+    VkDevice device = VK_NULL_HANDLE;
+    VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
+    VkCommandPool commandPool;
+    VkQueue graphicsQueue = VK_NULL_HANDLE;
+
+    VkDescriptorPool descriptorPool;
+    VkDescriptorSet descriptorSet;
+
+    VkCommandBuffer beginSingleTimeCommands();
+    void endSingleTimeCommands(VkCommandBuffer commandBuffer);
+
+    void createDescriptorPool();
+    void createDescriptorSet(VkBuffer uniformBuffer, VkImageView imageView, VkSampler sampler);
+
+    UniformBuffer ubo;
+
+private:   
     GLFWwindow *window = nullptr;
     VkInstance instance;
     VkSurfaceKHR surface = VK_NULL_HANDLE;
-    VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
+    VkDescriptorSetLayout descriptorSetLayout;
 
-    VkDevice device = VK_NULL_HANDLE;
-    VkQueue graphicsQueue = VK_NULL_HANDLE;
+  
     VkQueue presentQueue = VK_NULL_HANDLE;
 
     VkSwapchainKHR swapchain;
@@ -90,7 +109,7 @@ private:
     VkPipeline graphicsPipeline;
     std::vector<VkFramebuffer> swapchainFramebuffers;
 
-    VkCommandPool commandPool;
+    
     std::vector<VkCommandBuffer> commandBuffers;
 
     VkSemaphore imageAvailableSemaphore;

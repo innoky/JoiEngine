@@ -2,11 +2,14 @@
 #include <vulkan/vulkan.h>
 #include "vulkan/render/Vertex.hpp"
 #include "vulkan/render/Transform.hpp"
+#include "vulkan/renderer/Texture2D.hpp"
+#include "memory"
 #include <vector>
 #include <string>
 
 class VulkanApp; 
 
+class Texture2D;
 
 class Mesh
 {
@@ -26,6 +29,9 @@ public:
     size_t vertexCount() const { return vertices.size(); }
     Transform transform;
 
+    void setTexture(std::shared_ptr<Texture2D> tex);
+    void createDescriptorSet(VkBuffer uboBuffer);
+
 private:
     VulkanApp &app;
     std::vector<Vertex> vertices;
@@ -39,4 +45,7 @@ private:
     VkDeviceMemory indexBufferMemory = VK_NULL_HANDLE;
 
     uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
+
+    std::shared_ptr<Texture2D> texture = nullptr;
+    VkDescriptorSet descriptorSet = VK_NULL_HANDLE;
 };

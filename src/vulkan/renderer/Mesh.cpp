@@ -99,7 +99,6 @@ void Mesh::create()
         center3D /= static_cast<float>(vertices.size());
         localCenter = center3D;
 }
-
 void Mesh::draw(VkCommandBuffer commandBuffer) const
 {
     if (vertexBuffer == VK_NULL_HANDLE)
@@ -107,9 +106,41 @@ void Mesh::draw(VkCommandBuffer commandBuffer) const
         std::cerr << "[MESH] vertexBuffer is NULL — not drawing\n";
         return;
     }
+
+    if (descriptorSet == VK_NULL_HANDLE)
+    {
+        std::cerr << "[MESH] descriptorSet is NULL — SEGFAULT PREVENTED\n";
+        return;
+    }
+
+    if (!texture)
+    {
+        std::cerr << "[MESH] texture is nullptr — SEGFAULT PREVENTED\n";
+        return;
+    }
+
+    if (texture->getImageView() == VK_NULL_HANDLE)
+    {
+        std::cerr << "[MESH] texture image view is NULL — draw skipped\n";
+        return;
+    }
+
+    if (texture->getSampler() == VK_NULL_HANDLE)
+    {
+        std::cerr << "[MESH] texture sampler is NULL — draw skipped\n";
+        return;
+    }
+
     VkBuffer vertexBuffers[] = {vertexBuffer};
     VkDeviceSize offsets[] = {0};
     vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+
+    vkCmdBindDescriptorSets(
+        commandBuffer,
+        VK_PIPELINE_BIND_POINT_GRAPHICS,
+        app.pipelineLayout,
+        0, 1, &descriptorSet,
+        0, nullptr);
 
     if (!indices.empty())
     {
@@ -121,6 +152,7 @@ void Mesh::draw(VkCommandBuffer commandBuffer) const
         vkCmdDraw(commandBuffer, static_cast<uint32_t>(vertices.size()), 1, 0, 0);
     }
 }
+
 void Mesh::cleanup()
 {
     if (indexBuffer != VK_NULL_HANDLE)
@@ -163,4 +195,81 @@ uint32_t Mesh::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags propert
     }
 
     throw std::runtime_error("failed to find suitable memory type!");
+}
+
+void Mesh::setTexture(std::shared_ptr<Texture2D> tex)
+{
+    texture = tex;
+    std::cout << "[MESH] Texture set\n";
+}
+
+void Mesh::createDescriptorSet(VkBuffer uboBuffer)
+{
+    std::cout << "[MESH] → Begin createDescriptorSet\n";
+
+    if (!texture)
+    {
+        std::cerr << "[MESH] ERROR: texture is nullptr in createDescriptorSet\n";
+        return;
+    }
+
+    std::cout << "[MESH] ImageView: " << texture->getImageView() << "\n";
+    std::cout << "[MESH] Sampler: " << texture->getSampler() << "\n";
+
+    VkDescriptorSetAllocateInfo allocInfo{};
+    allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+    allocInfo.descriptorPool = app.descriptorPool;
+    allocInfo.descriptorSetCount = 1;
+    allocInfo.pSetLayouts = &app.descriptorSetLayout;
+    if (app.descriptorPool == VK_NULL_HANDLE)
+    {
+        std::cerr << "[MESH] ERROR: descriptorPool == VK_NULL_HANDLE\n";
+    }
+    if (app.descriptorSetLayout == VK_NULL_HANDLE)
+    {
+        std::cerr << "[MESH] ERROR: descriptorSetLayout == VK_NULL_HANDLE\n";
+    }
+    if (vkAllocateDescriptorSets(app.device, &allocInfo, &descriptorSet) != VK_SUCCESS)
+        throw std::runtime_error("failed to allocate descriptor set!");
+
+    VkDescriptorBufferInfo bufferInfo{};
+    bufferInfo.buffer = uboBuffer;
+    bufferInfo.offset = 0;
+    bufferInfo.range = sizeof(glm::mat4) * 3;
+
+    VkDescriptorImageInfo imageInfo{};
+    imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+    imageInfo.imageView = texture->getImageView();
+    imageInfo.sampler = texture->getSampler();
+
+    std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
+
+    descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    descriptorWrites[0].dstSet = descriptorSet;
+    descriptorWrites[0].dstBinding = 0;
+    descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    descriptorWrites[0].descriptorCount = 1;
+    descriptorWrites[0].pBufferInfo = &bufferInfo;
+
+    descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    descriptorWrites[1].dstSet = descriptorSet;
+    descriptorWrites[1].dstBinding = 1;
+    descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    descriptorWrites[1].descriptorCount = 1;
+    descriptorWrites[1].pImageInfo = &imageInfo;
+    
+    if (uboBuffer == VK_NULL_HANDLE)
+    {
+        std::cerr << "[MESH] ERROR: uboBuffer is VK_NULL_HANDLE — cannot bind!\n";
+        return;
+    }
+    std::cout << "[MESH] Final sanity check before update:\n";
+    std::cout << "  ↳ descriptorSet: " << descriptorSet << "\n";
+    std::cout << "  ↳ uboBuffer:     " << bufferInfo.buffer << "\n";
+    std::cout << "  ↳ imageView:     " << imageInfo.imageView << "\n";
+    std::cout << "  ↳ sampler:       " << imageInfo.sampler << "\n";
+
+    vkUpdateDescriptorSets(app.device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
+    std::cout << "[MESH] Descriptor set created: " << descriptorSet << std::endl;
+    
 }

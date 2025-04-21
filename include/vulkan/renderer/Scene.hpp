@@ -11,6 +11,8 @@
 #include <memory>
 
 class VulkanApp;
+class Mesh;
+
 
 class Scene
 {

@@ -34,9 +34,10 @@ inline std::pair<std::vector<Vertex>, std::vector<uint32_t>> LoadGLTFMesh_All(co
     {
         if (node.mesh < 0)
             continue;
+
         std::cout << "[GLTF Node] mesh: " << node.mesh;
         if (node.name.find("Plane001") != std::string::npos)
-            continue; // пропускаем меш с фоном
+            continue;
 
         if (!node.translation.empty())
         {
@@ -53,7 +54,6 @@ inline std::pair<std::vector<Vertex>, std::vector<uint32_t>> LoadGLTFMesh_All(co
 
         std::cout << std::endl;
 
-        // === Node transform ===
         glm::mat4 nodeTransform(1.0f);
         if (!node.matrix.empty())
         {
@@ -86,7 +86,6 @@ inline std::pair<std::vector<Vertex>, std::vector<uint32_t>> LoadGLTFMesh_All(co
             const auto &posAccessor = model.accessors[primitive.attributes.at("POSITION")];
             const auto &posView = model.bufferViews[posAccessor.bufferView];
             const auto &posBuffer = model.buffers[posView.buffer];
-
             const float *posData = reinterpret_cast<const float *>(
                 posBuffer.data.data() + posView.byteOffset + posAccessor.byteOffset);
 
@@ -94,8 +93,8 @@ inline std::pair<std::vector<Vertex>, std::vector<uint32_t>> LoadGLTFMesh_All(co
             size_t count = posAccessor.count;
             vertices.resize(startVertex + count);
 
-            
-            bool hasColor = primitive.attributes.count("COLOR_0");
+            // --- COLOR ---
+            bool hasColor = primitive.attributes.count("COLOR_0") > 0;
             const float *colorData = nullptr;
             if (hasColor)
             {
@@ -106,6 +105,19 @@ inline std::pair<std::vector<Vertex>, std::vector<uint32_t>> LoadGLTFMesh_All(co
                     colBuffer.data.data() + colView.byteOffset + colAccessor.byteOffset);
             }
 
+            // --- UV ---
+            bool hasUV = primitive.attributes.count("TEXCOORD_0") > 0;
+            const float *uvData = nullptr;
+            if (hasUV)
+            {
+                const auto &uvAccessor = model.accessors[primitive.attributes.at("TEXCOORD_0")];
+                const auto &uvView = model.bufferViews[uvAccessor.bufferView];
+                const auto &uvBuffer = model.buffers[uvView.buffer];
+                uvData = reinterpret_cast<const float *>(
+                    uvBuffer.data.data() + uvView.byteOffset + uvAccessor.byteOffset);
+            }
+
+            // --- FILL VERTICES ---
             for (size_t i = 0; i < count; ++i)
             {
                 glm::vec3 pos = glm::make_vec3(&posData[i * 3]);
@@ -113,18 +125,17 @@ inline std::pair<std::vector<Vertex>, std::vector<uint32_t>> LoadGLTFMesh_All(co
                 vertices[startVertex + i].pos = transformed;
 
                 if (hasColor)
-                {
                     vertices[startVertex + i].color = glm::make_vec3(&colorData[i * 3]);
-                }
                 else
-                {
-                    vertices[startVertex + i].color = (i % 10 == 0)
-                                                          ? glm::vec3(0.25f)
-                                                          : glm::vec3(0.45f);
-                }
+                    vertices[startVertex + i].color = (i % 10 == 0) ? glm::vec3(0.25f) : glm::vec3(0.45f);
+
+                if (hasUV)
+                    vertices[startVertex + i].uv = glm::make_vec2(&uvData[i * 2]);
+                else
+                    vertices[startVertex + i].uv = glm::vec2(0.0f);
             }
 
-      
+            // --- INDICES ---
             const auto &idxAccessor = model.accessors[primitive.indices];
             const auto &idxView = model.bufferViews[idxAccessor.bufferView];
             const auto &idxBuffer = model.buffers[idxView.buffer];
