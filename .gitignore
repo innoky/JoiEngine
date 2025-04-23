@@ -39,3 +39,9 @@ Thumbs.db
 # Личные файлы (настройки)
 *.swp
 *.swo
+
+/build/
+/venv/
+*.so
+*.pyc
+__pycache__/

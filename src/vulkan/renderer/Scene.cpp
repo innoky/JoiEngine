@@ -25,7 +25,7 @@ void Scene::init()
     // cube->create();
     // addMesh(std::move(cube));
 
-    auto texture = std::make_shared<Texture2D>(app, "../resources/textures/blackrat_eyes_baseColor.png");
+    // auto texture = std::make_shared<Texture2D>(app, "../resources/textures/blackrat_eyes_baseColor.png");
 
     // float alpha_mobius = 0.5f;
     // float beta_mobius = 0.2f;
@@ -34,9 +34,12 @@ void Scene::init()
     // int vSegments = 150;
     auto [vertices, indices] = LoadGLTFMesh_All("../resources/gltfModels/scene.gltf");
     auto car = std::make_unique<Mesh>(app, vertices, indices, "rat");
-    car->setTexture(texture);
+    // car->setTexture(texture);
     car->create();
-    car->transform.rotationEuler.z = 180;
+    // car->transform.scale.x = 10.0f;
+    // car->transform.scale.y = 10.0f;
+    // car->transform.scale.z = 10.0f;
+    // car->transform.rotationEuler.z = 180;
     car->createDescriptorSet(app.ubo.buffer);
     addMesh(std::move(car));
     
@@ -120,7 +123,8 @@ void Scene::update(float time)
 
     for (auto &mesh : meshes)
     {
-        mesh->transform.rotationEuler.y += 0.5;
+        // mesh->transform.rotationEuler.y += 0.5;
+        // mesh->transform.rotationEuler.x += 0.5;
     }
 }
 
