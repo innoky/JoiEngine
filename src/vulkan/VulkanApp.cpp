@@ -13,23 +13,23 @@
 #include <array>
 #include <stdexcept>
 
-void VulkanApp::run()
+void VulkanApp::run(uint32_t screenWidth, uint32_t screenHeight)
 {
-    initWindow();
+    initWindow(screenWidth, screenHeight);
     initVulkan();
     mainLoop();
     cleanup();
 }
 
-void VulkanApp::initWindow()
+void VulkanApp::initWindow(uint32_t width, uint32_t height)
 {
-    window = WindowInit::create(1200, 1000, "Visualizer");
+    window = WindowInit::create(width, height, "Visualizer");
 }
+
 void VulkanApp::initVulkan()
 {
     VulkanInitializer initializer(*this);
     initializer.init();
-
 
 }
 

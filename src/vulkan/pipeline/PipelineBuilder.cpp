@@ -45,8 +45,8 @@ VkShaderModule PipelineBuilder::createShaderModule(const std::vector<char> &code
 
 void PipelineBuilder::createGraphicsPipeline()
 {
-    auto vertShaderCode = readFile("../resources/shaders/vert.spv");
-    auto fragShaderCode = readFile("../resources/shaders/frag.spv");
+    auto vertShaderCode = readFile("../../resources/shaders/vert.spv");
+    auto fragShaderCode = readFile("../../resources/shaders/frag.spv");
 
     VkShaderModule vertShaderModule = createShaderModule(vertShaderCode);
     VkShaderModule fragShaderModule = createShaderModule(fragShaderCode);

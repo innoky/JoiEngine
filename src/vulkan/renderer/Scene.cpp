@@ -27,21 +27,21 @@ void Scene::init()
 
     // auto texture = std::make_shared<Texture2D>(app, "../resources/textures/blackrat_eyes_baseColor.png");
 
-    // float alpha_mobius = 0.5f;
-    // float beta_mobius = 0.2f;
+    float alpha_mobius = 0.5f;
+    float beta_mobius = 0.2f;
 
-    // int uSegments = 150;
-    // int vSegments = 150;
-    auto [vertices, indices] = LoadGLTFMesh_All("../resources/gltfModels/scene.gltf");
-    auto car = std::make_unique<Mesh>(app, vertices, indices, "rat");
+    int uSegments = 150;
+    int vSegments = 150;
+    auto texture = std::make_shared<Texture2D>(app, "../../resources/textures/basic/whiteStriped.png");
+    auto [vertices_mobius, indices_mobius] = GenerateMobiusSurface(alpha_mobius, beta_mobius, uSegments, vSegments);
+    auto mobius = std::make_unique<Mesh>(app, vertices_mobius, indices_mobius, "mobius");
+    // auto car = std::make_unique<Mesh>(app, vertices, indices, "rat");
     // car->setTexture(texture);
-    car->create();
-    // car->transform.scale.x = 10.0f;
-    // car->transform.scale.y = 10.0f;
-    // car->transform.scale.z = 10.0f;
-    // car->transform.rotationEuler.z = 180;
-    car->createDescriptorSet(app.ubo.buffer);
-    addMesh(std::move(car));
+    mobius->setTexture(texture);
+    mobius->create();
+    
+    mobius->createDescriptorSet(app.ubo.buffer);
+    addMesh(std::move(mobius));
     
 }
 

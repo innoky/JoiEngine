@@ -8,9 +8,12 @@
 
 
 /resources/gltfModels/*
+/resources/textures/basic/*
+/resources/textures/extra/*
 
 !/resources/gltfModels/.gitkeep
-
+/resources/textures/basic/.gitkeep
+/resources/textures/extra/.gitkeep
 
 # Файлы, сгенерированные IDE
 .vscode/

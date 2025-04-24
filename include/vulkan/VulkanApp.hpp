@@ -64,7 +64,7 @@ class VulkanApp
    
 
 public:
-    void run();
+    void run(uint32_t screenWidth, uint32_t screenHeight);
 
     double lastX = 0.0;
     double lastY = 0.0;
@@ -126,7 +126,7 @@ private:
     
     std::unique_ptr<Scene> scene;
 
-    void initWindow();
+    void initWindow(uint32_t width, uint32_t height);
     void initVulkan();
     void mainLoop();
     void cleanup();
