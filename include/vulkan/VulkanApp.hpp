@@ -59,6 +59,7 @@ class VulkanApp
     friend class DrawFrame;
     friend class Mesh;
     friend class DepthResources;
+    friend class Scene;
 
 
    
@@ -107,9 +108,12 @@ private:
 
     VkPipelineLayout pipelineLayout;
     VkPipeline graphicsPipeline;
+
+    VkPipeline gridPipeline;
+    VkPipelineLayout gridPipelineLayout;
+
     std::vector<VkFramebuffer> swapchainFramebuffers;
 
-    
     std::vector<VkCommandBuffer> commandBuffers;
 
     VkSemaphore imageAvailableSemaphore;

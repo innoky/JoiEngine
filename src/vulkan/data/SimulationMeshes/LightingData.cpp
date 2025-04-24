@@ -1,19 +1,19 @@
 #include "vulkan/data/SimulationMeshes/Lighthing/LightingData.hpp"
-#include "vulkan/data/SimulationMeshes/CubeData.hpp"
 #include "vulkan/renderer/Mesh.hpp"
-#include <memory>
-#include <random>
-#include <vector>
+#include "vulkan/renderer/Scene.hpp"
+#include "vulkan/renderer/Texture2D.hpp"
 #include <glm/gtc/matrix_transform.hpp>
+#include <random>
+#include <iostream>
 
 inline void LightningSimulator::generateFractalLighting(
     const glm::vec3 &start,
     const glm::vec3 &end,
     std::vector<glm::vec3> &outPoints,
-    float displacement = 1.8f,
-    float minDisplacement = 0.03f,
-    float decay = 0.55f,
-    int depth = 0)
+    float displacement,
+    float minDisplacement,
+    float decay,
+    int depth)
 {
     if (displacement < minDisplacement || depth > 10)
     {
@@ -23,15 +23,10 @@ inline void LightningSimulator::generateFractalLighting(
     }
 
     glm::vec3 midpoint = (start + end) * 0.5f;
-
-    // Добавим случайное смещение
     static std::default_random_engine engine(std::random_device{}());
     std::uniform_real_distribution<float> dist(-displacement, displacement);
+    midpoint += glm::vec3(dist(engine), dist(engine), dist(engine));
 
-    glm::vec3 offset(dist(engine), dist(engine), dist(engine));
-    midpoint += offset;
-
-    // Рекурсивно разбиваем отрезок
     generateFractalLighting(start, midpoint, outPoints, displacement * decay, minDisplacement, decay, depth + 1);
     generateFractalLighting(midpoint, end, outPoints, displacement * decay, minDisplacement, decay, depth + 1);
 }
@@ -39,40 +34,33 @@ inline void LightningSimulator::generateFractalLighting(
 void LightningSimulator::update(Scene &scene, float dt)
 {
     elapsed += dt;
-    
+
     if (points.empty())
     {
         generateFractalLighting(glm::vec3(0, 0, 0), glm::vec3(0, -5, 8), points);
     }
-  
 
     if (createdSegments < maxSegments && elapsed >= spawnInterval)
     {
         elapsed = 0.0f;
 
-        auto [vertices, indices] = GenerateCube();
-
-        auto texture = std::make_shared<Texture2D>(scene.app, "../../resources/textures/basic/lighting.png");
-        auto mesh = std::make_unique<Mesh>(scene.app, vertices, indices, "light_seg_" + std::to_string(createdSegments));
-
-        mesh->setTexture(texture); // это поле можно добавить в Scene
-        float x = static_cast<float>(createdSegments);
-
-        if (createdSegments < points.size())
+        if (createdSegments * 2 + 1 >= points.size())
         {
-            mesh->transform.position = points[createdSegments];
+            std::cerr << "[LIGHTNING] Reached end of points\n";
+            return;
         }
-        else
-        {
-            std::cerr << "[LIGHTNING] Index out of bounds: " << createdSegments << " >= " << points.size() << "\n";
-            return; 
-        }
+        std::vector<Vertex> lineVerts = {
+            {points[createdSegments * 2], glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f)},
+            {points[createdSegments * 2 + 1], glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 1.0f)}};
 
-        mesh->transform.scale = glm::vec3(0.02f, 0.02f, 0.02f);
-        mesh->create();
-        mesh->createDescriptorSet(scene.app.ubo.buffer);
-       
+        auto mesh = std::make_unique<Mesh>(
+            scene.app,
+            lineVerts.data(), sizeof(Vertex), static_cast<uint32_t>(lineVerts.size()),
+            "light_seg_" + std::to_string(createdSegments));
+
+        mesh->transform.scale = glm::vec3(1.0f); // uniform scale
         scene.addMesh(std::move(mesh));
+
         createdSegments++;
     }
 }

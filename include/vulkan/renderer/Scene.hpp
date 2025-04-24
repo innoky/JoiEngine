@@ -47,6 +47,5 @@ public:
 
 private:
     std::vector<std::unique_ptr<Mesh>> meshes;
-    
-    
+    std::unique_ptr<Mesh> gridMesh;
 };

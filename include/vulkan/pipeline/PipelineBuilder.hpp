@@ -9,7 +9,7 @@ class PipelineBuilder
 public:
     PipelineBuilder(VulkanApp &app);
     void createGraphicsPipeline();
-
+    void createGridPipeline();
 
 private:
     VulkanApp &app;

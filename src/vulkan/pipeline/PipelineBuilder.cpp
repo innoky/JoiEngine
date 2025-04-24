@@ -1,10 +1,15 @@
 #include <vulkan/pipeline/PipelineBuilder.hpp>
+
+#include "vulkan/render/PushConstants.hpp"
+#include "vulkan/render/Vertex.hpp"
+#include "vulkan/render/GridVertex.hpp"
+#include "vulkan/VulkanApp.hpp"
+#include <vulkan/vulkan.h>
+
 #include <string>
 #include <vector>
 #include <fstream>
-#include "vulkan/render/PushConstants.hpp"
-#include "vulkan/VulkanApp.hpp"
-#include <vulkan/vulkan.h>
+
 
 PipelineBuilder::PipelineBuilder(VulkanApp &app) : app(app) {}
 
@@ -45,8 +50,8 @@ VkShaderModule PipelineBuilder::createShaderModule(const std::vector<char> &code
 
 void PipelineBuilder::createGraphicsPipeline()
 {
-    auto vertShaderCode = readFile("../../resources/shaders/vert.spv");
-    auto fragShaderCode = readFile("../../resources/shaders/frag.spv");
+    auto vertShaderCode = readFile("../../resources/shaders/mesh/vert.spv");
+    auto fragShaderCode = readFile("../../resources/shaders/mesh/frag.spv");
 
     VkShaderModule vertShaderModule = createShaderModule(vertShaderCode);
     VkShaderModule fragShaderModule = createShaderModule(fragShaderCode);
@@ -134,7 +139,6 @@ void PipelineBuilder::createGraphicsPipeline()
     pushConstantRange.offset = 0;
     pushConstantRange.size = sizeof(PushConstantData);
 
-
     VkDescriptorSetLayoutBinding uboLayoutBinding{};
     uboLayoutBinding.binding = 0;
     uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -201,6 +205,133 @@ void PipelineBuilder::createGraphicsPipeline()
     {
         throw std::runtime_error("failed to create graphics pipeline!");
     }
+
+    vkDestroyShaderModule(app.device, fragShaderModule, nullptr);
+    vkDestroyShaderModule(app.device, vertShaderModule, nullptr);
+}
+
+void PipelineBuilder::createGridPipeline()
+{
+    auto vertShaderCode = readFile("../../resources/shaders/grid/vert.spv");
+    auto fragShaderCode = readFile("../../resources/shaders/grid/frag.spv");
+
+    VkShaderModule vertShaderModule = createShaderModule(vertShaderCode);
+    VkShaderModule fragShaderModule = createShaderModule(fragShaderCode);
+
+    VkPipelineShaderStageCreateInfo shaderStages[2]{};
+
+    shaderStages[0].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+    shaderStages[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
+    shaderStages[0].module = vertShaderModule;
+    shaderStages[0].pName = "main";
+
+    shaderStages[1].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+    shaderStages[1].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+    shaderStages[1].module = fragShaderModule;
+    shaderStages[1].pName = "main";
+
+    // Vertex Input
+    auto bindingDescription = GridVertex::getBindingDescription();
+    auto attributeDescriptions = GridVertex::getAttributeDescriptions();
+
+    VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
+    vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+    vertexInputInfo.vertexBindingDescriptionCount = 1;
+    vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
+    vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
+    vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
+
+    VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
+    inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+    inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
+    inputAssembly.primitiveRestartEnable = VK_FALSE;
+
+    VkViewport viewport{};
+    viewport.x = 0.0f;
+    viewport.y = 0.0f;
+    viewport.width = (float)app.swapchainExtent.width;
+    viewport.height = (float)app.swapchainExtent.height;
+    viewport.minDepth = 0.0f;
+    viewport.maxDepth = 1.0f;
+
+    VkRect2D scissor{};
+    scissor.offset = {0, 0};
+    scissor.extent = app.swapchainExtent;
+
+    VkPipelineViewportStateCreateInfo viewportState{};
+    viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+    viewportState.viewportCount = 1;
+    viewportState.pViewports = &viewport;
+    viewportState.scissorCount = 1;
+    viewportState.pScissors = &scissor;
+
+    VkPipelineRasterizationStateCreateInfo rasterizer{};
+    rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+    rasterizer.depthClampEnable = VK_FALSE;
+    rasterizer.rasterizerDiscardEnable = VK_FALSE;
+    rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
+    rasterizer.lineWidth = 1.0f;
+    rasterizer.cullMode = VK_CULL_MODE_NONE;
+    rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
+    rasterizer.depthBiasEnable = VK_FALSE;
+
+    VkPipelineMultisampleStateCreateInfo multisampling{};
+    multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+    multisampling.sampleShadingEnable = VK_FALSE;
+    multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+
+    VkPipelineColorBlendAttachmentState colorBlendAttachment{};
+    colorBlendAttachment.colorWriteMask =
+        VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
+        VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+    colorBlendAttachment.blendEnable = VK_FALSE;
+
+    VkPipelineColorBlendStateCreateInfo colorBlending{};
+    colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+    colorBlending.logicOpEnable = VK_FALSE;
+    colorBlending.attachmentCount = 1;
+    colorBlending.pAttachments = &colorBlendAttachment;
+
+    VkPushConstantRange pushConstantRange{};
+    pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+    pushConstantRange.offset = 0;
+    pushConstantRange.size = sizeof(PushConstantData);
+
+    VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
+    pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+    pipelineLayoutInfo.setLayoutCount = 0;
+    pipelineLayoutInfo.pSetLayouts = nullptr;
+    pipelineLayoutInfo.pushConstantRangeCount = 1;
+    pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
+
+    if (vkCreatePipelineLayout(app.device, &pipelineLayoutInfo, nullptr, &app.gridPipelineLayout) != VK_SUCCESS)
+        throw std::runtime_error("failed to create grid pipeline layout!");
+
+    VkPipelineDepthStencilStateCreateInfo depthStencil{};
+    depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+    depthStencil.depthTestEnable = VK_FALSE;
+    depthStencil.depthWriteEnable = VK_FALSE;
+    depthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
+    depthStencil.depthBoundsTestEnable = VK_FALSE;
+    depthStencil.stencilTestEnable = VK_FALSE;
+
+    VkGraphicsPipelineCreateInfo pipelineInfo{};
+    pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+    pipelineInfo.stageCount = 2;
+    pipelineInfo.pStages = shaderStages;
+    pipelineInfo.pVertexInputState = &vertexInputInfo;
+    pipelineInfo.pInputAssemblyState = &inputAssembly;
+    pipelineInfo.pViewportState = &viewportState;
+    pipelineInfo.pRasterizationState = &rasterizer;
+    pipelineInfo.pMultisampleState = &multisampling;
+    pipelineInfo.pColorBlendState = &colorBlending;
+    pipelineInfo.pDepthStencilState = &depthStencil;
+    pipelineInfo.layout = app.gridPipelineLayout;
+    pipelineInfo.renderPass = app.renderPass;
+    pipelineInfo.subpass = 0;
+
+    if (vkCreateGraphicsPipelines(app.device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &app.gridPipeline) != VK_SUCCESS)
+        throw std::runtime_error("failed to create grid graphics pipeline!");
 
     vkDestroyShaderModule(app.device, fragShaderModule, nullptr);
     vkDestroyShaderModule(app.device, vertShaderModule, nullptr);

@@ -1,48 +1,68 @@
 #include "vulkan/renderer/Scene.hpp"
 #include "vulkan/render/PushConstants.hpp"
-
-// Objects data
-// #include "vulkan/data/CubeData.hpp"
-// #include "vulkan/data/MobiusData.hpp"
-// #include "vulkan/data/SpiralData.hpp"
-// #include "vulkan/data/ToroidalData.hpp"
-// #include "vulkan/data/ScrewData.hpp"
-// #include "vulkan/data/ShellData.hpp"
-// #include "vulkan/data/KleynData.hpp"
-// #include "vulkan/data/ModelGenerator.hpp"
-
+#include "vulkan/render/GridVertex.hpp"
+#include "vulkan/renderer/Texture2D.hpp"
 #include "vulkan/data/SimulationMeshes/Lighthing/LightingData.hpp"
-
 
 #include <algorithm>
 #include <memory>
 
 
-Scene::Scene(GLFWwindow *window, VulkanApp &app) : window(window), app(app) {}
 
+Scene::Scene(GLFWwindow *window, VulkanApp &app) : window(window), app(app) {}
 void Scene::init()
 {
     app.ubo.create(app);
- 
-    auto texture = std::make_shared<Texture2D>(app, "../../resources/textures/basic/whiteStriped.png");
-    // auto [vertices_mobius, indices_mobius] = GenerateMobiusSurface(alpha_mobius, beta_mobius, uSegments, vSegments);
-    // auto mobius = std::make_unique<Mesh>(app, vertices_mobius, indices_mobius, "mobius");
-    // auto car = std::make_unique<Mesh>(app, vertices, indices, "rat");
-    // car->setTexture(texture);
-    // mobius->setTexture(texture);
-    // mobius->create();
-    
-    // mobius->createDescriptorSet(app.ubo.buffer);
-    // addMesh(std::move(mobius));
-    lightning = std::make_unique<LightningSimulator>();
-}
 
+    auto texture = std::make_shared<Texture2D>(app, "../../resources/textures/basic/whiteStriped.png");
+
+
+    std::vector<GridVertex> gridVertices;
+    const int count = 20;
+    const float size = 1.0f;
+    const float half = (count * size) / 2.0f;
+
+    for (int i = 0; i <= count; ++i)
+    {
+        float pos = -half + i * size;
+        // вертикальные линии
+        gridVertices.push_back({glm::vec3(pos, 0.0f, -half)});
+        gridVertices.push_back({glm::vec3(pos, 0.0f, half)});
+        // горизонтальные линии
+        gridVertices.push_back({glm::vec3(-half, 0.0f, pos)});
+        gridVertices.push_back({glm::vec3(half, 0.0f, pos)});
+    }
+    gridMesh = std::make_unique<Mesh>(app, gridVertices.data(), sizeof(GridVertex), static_cast<uint32_t>(gridVertices.size()), "grid");
+
+    lightning = std::make_unique<LightningSimulator>();
+    std::cout << "[GRID] gridVertices.size(): " << gridVertices.size() << std::endl;
+}
 void Scene::draw(VkCommandBuffer cmd, VkPipelineLayout layout)
 {
     glm::mat4 view = camera.getViewMatrix();
     glm::mat4 proj = camera.getProjectionMatrix();
-    proj[1][1] *= -1; // for vulkan orientation
+    proj[1][1] *= -1; // Vulkan NDC: инвертировать Y
 
+    // 1. Рисуем сетку
+    if (gridMesh)
+    {
+        vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, app.gridPipeline);
+        if (app.gridPipeline == VK_NULL_HANDLE)
+        {
+            std::cerr << "[GRID] gridPipeline is NULL\n";
+        }
+        PushConstantData pcData{};
+        pcData.model = gridMesh->transform.getMatrix();
+        pcData.view = view;
+        pcData.proj = proj;
+
+        vkCmdPushConstants(cmd, app.gridPipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(PushConstantData), &pcData);
+        std::cout << "[DRAW] Drawing grid mesh with vertex count: " << gridMesh->vertexCount() << "\n";
+
+        gridMesh->draw(cmd);
+    }
+
+    // 2. Рисуем все меши
     for (auto &mesh : meshes)
     {
         glm::mat4 model = mesh->transform.getMatrix();
