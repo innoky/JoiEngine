@@ -2,7 +2,7 @@
 #include <vulkan/vulkan.h>
 #include "TUtils/TUtils.hpp"
 
-#include "vulkan/data/TriangleData.hpp"
+#include "vulkan/data/MathMeshes/TriangleData.hpp"
 #include "vulkan/window/WindowInit.hpp"
 #include "vulkan/VulkanInitializer.hpp"
 #include "vulkan/renderer/DrawFrame.hpp"
@@ -157,18 +157,20 @@ void VulkanApp::endSingleTimeCommands(VkCommandBuffer commandBuffer)
 
 void VulkanApp::createDescriptorPool()
 {
+    const uint32_t maxObjects = 10000;
+
     std::array<VkDescriptorPoolSize, 2> poolSizes{};
     poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    poolSizes[0].descriptorCount = 1;
+    poolSizes[0].descriptorCount = maxObjects;
+
     poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-    poolSizes[1].descriptorCount = 1;
+    poolSizes[1].descriptorCount = maxObjects;
 
     VkDescriptorPoolCreateInfo poolInfo{};
     poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
     poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
     poolInfo.pPoolSizes = poolSizes.data();
-    poolInfo.maxSets = 1;
-
+    poolInfo.maxSets = maxObjects;
     if (vkCreateDescriptorPool(device, &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create descriptor pool!");

@@ -2,18 +2,20 @@
 #include "vulkan/render/PushConstants.hpp"
 
 // Objects data
-#include "vulkan/data/CubeData.hpp"
-#include "vulkan/data/MobiusData.hpp"
-#include "vulkan/data/SpiralData.hpp"
-#include "vulkan/data/ToroidalData.hpp"
-#include "vulkan/data/ScrewData.hpp"
-#include "vulkan/data/ShellData.hpp"
-#include "vulkan/data/KleynData.hpp"
-#include "vulkan/data/ModelGenerator.hpp"
+// #include "vulkan/data/CubeData.hpp"
+// #include "vulkan/data/MobiusData.hpp"
+// #include "vulkan/data/SpiralData.hpp"
+// #include "vulkan/data/ToroidalData.hpp"
+// #include "vulkan/data/ScrewData.hpp"
+// #include "vulkan/data/ShellData.hpp"
+// #include "vulkan/data/KleynData.hpp"
+// #include "vulkan/data/ModelGenerator.hpp"
+
+#include "vulkan/data/SimulationMeshes/Lighthing/LightingData.hpp"
+
 
 #include <algorithm>
 #include <memory>
-
 
 
 Scene::Scene(GLFWwindow *window, VulkanApp &app) : window(window), app(app) {}
@@ -21,28 +23,18 @@ Scene::Scene(GLFWwindow *window, VulkanApp &app) : window(window), app(app) {}
 void Scene::init()
 {
     app.ubo.create(app);
-    // auto cube = std::make_unique<Mesh>(app, cubeVertices, "fcube");
-    // cube->create();
-    // addMesh(std::move(cube));
-
-    // auto texture = std::make_shared<Texture2D>(app, "../resources/textures/blackrat_eyes_baseColor.png");
-
-    float alpha_mobius = 0.5f;
-    float beta_mobius = 0.2f;
-
-    int uSegments = 150;
-    int vSegments = 150;
+ 
     auto texture = std::make_shared<Texture2D>(app, "../../resources/textures/basic/whiteStriped.png");
-    auto [vertices_mobius, indices_mobius] = GenerateMobiusSurface(alpha_mobius, beta_mobius, uSegments, vSegments);
-    auto mobius = std::make_unique<Mesh>(app, vertices_mobius, indices_mobius, "mobius");
+    // auto [vertices_mobius, indices_mobius] = GenerateMobiusSurface(alpha_mobius, beta_mobius, uSegments, vSegments);
+    // auto mobius = std::make_unique<Mesh>(app, vertices_mobius, indices_mobius, "mobius");
     // auto car = std::make_unique<Mesh>(app, vertices, indices, "rat");
     // car->setTexture(texture);
-    mobius->setTexture(texture);
-    mobius->create();
+    // mobius->setTexture(texture);
+    // mobius->create();
     
-    mobius->createDescriptorSet(app.ubo.buffer);
-    addMesh(std::move(mobius));
-    
+    // mobius->createDescriptorSet(app.ubo.buffer);
+    // addMesh(std::move(mobius));
+    lightning = std::make_unique<LightningSimulator>();
 }
 
 void Scene::draw(VkCommandBuffer cmd, VkPipelineLayout layout)
@@ -91,7 +83,6 @@ void Scene::update(float time)
 
     if (scrollOffset != 0.0f)
     {
-        // std::cout << "[SCROLL] Scroll: " << scrollOffset << "\n";
         camera.moveZ(scrollOffset * 0.1f);
         scrollOffset = 0.0f;
     }
@@ -119,13 +110,10 @@ void Scene::update(float time)
         if (camera.pitch < -89.0f)
             camera.pitch = -89.0f;
     }
-    camera.updateDirectionFromAngles(); // каждый кадр
+    camera.updateDirectionFromAngles(); 
 
-    for (auto &mesh : meshes)
-    {
-        // mesh->transform.rotationEuler.y += 0.5;
-        // mesh->transform.rotationEuler.x += 0.5;
-    }
+    if (lightning)
+        lightning->update(*this, deltaTime);
 }
 
 void Scene::addMesh(std::unique_ptr<Mesh> mesh)

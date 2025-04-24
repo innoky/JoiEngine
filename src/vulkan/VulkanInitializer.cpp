@@ -18,8 +18,8 @@
 #include "vulkan/renderer/Texture2D.hpp"
 
 #include "vulkan/renderer/Mesh.hpp"
-#include "vulkan/data/TriangleData.hpp"
-#include "vulkan/data/CubeData.hpp"
+#include "vulkan/data/MathMeshes/TriangleData.hpp"
+// #include "vulkan/data/CubeData.hpp"
 
 #include "vulkan/renderer/Camera.hpp"
 #include "vulkan/renderer/Scene.hpp"

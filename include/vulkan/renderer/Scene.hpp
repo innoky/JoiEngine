@@ -6,13 +6,15 @@
 #include "vulkan/render/Vertex.hpp"
 #include "vulkan/render/Transform.hpp"
 
+#include "vulkan/data/SimulationMeshes/Lighthing/LightingData.hpp"
+
 #include <vulkan/vulkan.h>
 #include <vector>
 #include <memory>
 
 class VulkanApp;
 class Mesh;
-
+class LightningSimulator;
 
 class Scene
 {
@@ -39,11 +41,12 @@ public:
 
     bool isDragging = false;
     double lastX = 0.0f, lastY = 0.0f;
-    
+    VulkanApp &app;
 
+    std::unique_ptr<LightningSimulator> lightning;
 
 private:
     std::vector<std::unique_ptr<Mesh>> meshes;
-    VulkanApp &app;
+    
     
 };
